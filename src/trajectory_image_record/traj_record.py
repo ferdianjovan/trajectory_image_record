@@ -34,7 +34,7 @@ class TrajectoryImageRecord(object):
         )
         rospy.loginfo("Publish to %s..." % record_topic)
         self._pub = rospy.Publisher(
-            record_topic, ImageRecord, queue_size=10
+            record_topic, Image, queue_size=10
         )
         rospy.loginfo("Store to %s collection..." % collection_name)
         self._store_client = MessageStoreProxy(collection=collection_name)
@@ -42,7 +42,7 @@ class TrajectoryImageRecord(object):
     def _traj_cb(self, trajs):
         for traj in trajs.trajectories:
             if traj.uuid not in self.last_traj_ids:
-                self._trajs = trajs
+                self._trajs = trajs.trajectories
                 self._new = True
                 break
 
@@ -56,7 +56,8 @@ class TrajectoryImageRecord(object):
                 for traj in self._trajs:
                     if traj.uuid not in self.last_traj_ids:
                         self.last_traj_ids.append(traj.uuid)
-                        self.last_traj_ids = self.last_traj_ids[:-1*self._max_size]
+			if len(self.last_traj_ids) > 100:
+                            self.last_traj_ids = self.last_traj_ids[1:]
                         traj_ids.append(traj.uuid)
                 record = ImageRecord(
                     Header(self._counter, rospy.Time.now(), '/map'),
@@ -65,26 +66,30 @@ class TrajectoryImageRecord(object):
                 rospy.loginfo(
                     "Publish an image for trajectories with uuid: %s" % str(traj_ids)
                 )
-                self._pub.publish(record)
+                self._pub.publish(record.image)
                 self._new = False
                 self._store_client.insert(record)
+		self._counter += 1
             else:
                 temp = rospy.Time.now().secs
                 if temp - self._last_taken > 10:
                     record = ImageRecord()
-                    record.header = Header(self._counter, rospy.Time.now(), '/map'),
+                    record.header = Header(self._counter, rospy.Time.now(), '/map')
+                    record.image = self._img 
                     self._store_client.insert(record)
                     self._last_taken = temp
+		    self._counter += 1
+
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog="image_record")
     parser.add_argument(
-        "image_topic", default="/head_xtion/rgb/image_raw/compressed_rgb",
-        help="Image topic to be stored (default=/head_xtion/rgb/image_raw/compressed_rgb)"
+        "image_topic", default="/head_xtion/rgb/image_raw/",
+        help="Image topic to be stored (default=/head_xtion/rgb/image_raw/)"
     )
     parser.add_argument(
-        "trajectory_topic", default="/human_trajectories/trajectories/batch",
+        "trajectory_topic", default="/people_trajectory/trajectories/batch",
         help="Trajectory topic to be stored (default=/human_trajectories/trajectories/batch)"
     )
     parser.add_argument(
