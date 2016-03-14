@@ -50,7 +50,7 @@ class TrajectoryImageRecord(object):
         self._img = image
 
     def record(self):
-        while not rospy.is_shutdown()
+        while not rospy.is_shutdown():
             traj_ids = list()
             if self._new:
                 for traj in self._trajs:
@@ -80,20 +80,20 @@ class TrajectoryImageRecord(object):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog="image_record")
     parser.add_argument(
-        "image_topic", default="/head_xtion/rgb/image_raw/compressed_rgb"
-        help="Image topic to be stored"
+        "image_topic", default="/head_xtion/rgb/image_raw/compressed_rgb",
+        help="Image topic to be stored (default=/head_xtion/rgb/image_raw/compressed_rgb)"
     )
     parser.add_argument(
-        "trajectory_topic", default="/human_trajectories/trajectories/batch"
-        help="Trajectory topic to be stored"
+        "trajectory_topic", default="/human_trajectories/trajectories/batch",
+        help="Trajectory topic to be stored (default=/human_trajectories/trajectories/batch)"
     )
     parser.add_argument(
-        "collection_name", default="trajectory_images"
-        help="Collection name in db message_store"
+        "collection_name", default="trajectory_images",
+        help="Collection name in db message_store (default=trajectory_images)"
     )
     args = parser.parse_args()
     rospy.init_node("trajectory_image_record")
-    tir = TrajectoryImageRecording(
+    tir = TrajectoryImageRecord(
         rospy.get_name(), args.image_topic,
         args.trajectory_topic, args.collection_name
     )
