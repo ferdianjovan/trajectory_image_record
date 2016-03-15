@@ -56,7 +56,7 @@ class TrajectoryImageRecord(object):
                 for traj in self._trajs:
                     if traj.uuid not in self.last_traj_ids:
                         self.last_traj_ids.append(traj.uuid)
-			if len(self.last_traj_ids) > 100:
+                        if len(self.last_traj_ids) > 100:
                             self.last_traj_ids = self.last_traj_ids[1:]
                         traj_ids.append(traj.uuid)
                 record = ImageRecord(
@@ -69,7 +69,7 @@ class TrajectoryImageRecord(object):
                 self._pub.publish(record.image)
                 self._new = False
                 self._store_client.insert(record)
-		self._counter += 1
+                self._counter += 1
             else:
                 temp = rospy.Time.now().secs
                 if temp - self._last_taken > 10:
@@ -78,7 +78,7 @@ class TrajectoryImageRecord(object):
                     record.image = self._img
                     self._store_client.insert(record)
                     self._last_taken = temp
-		    self._counter += 1
+                    self._counter += 1
 
 
 if __name__ == '__main__':
