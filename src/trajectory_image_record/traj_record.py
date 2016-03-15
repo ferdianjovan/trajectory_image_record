@@ -75,25 +75,24 @@ class TrajectoryImageRecord(object):
                 if temp - self._last_taken > 10:
                     record = ImageRecord()
                     record.header = Header(self._counter, rospy.Time.now(), '/map')
-                    record.image = self._img 
+                    record.image = self._img
                     self._store_client.insert(record)
                     self._last_taken = temp
 		    self._counter += 1
 
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog="image_record")
     parser.add_argument(
-        "image_topic", default="/head_xtion/rgb/image_raw/",
+        "image_topic", nargs='?', default="/head_xtion/rgb/image_raw/",
         help="Image topic to be stored (default=/head_xtion/rgb/image_raw/)"
     )
     parser.add_argument(
-        "trajectory_topic", default="/people_trajectory/trajectories/batch",
+        "trajectory_topic", nargs='?', default="/people_trajectory/trajectories/batch",
         help="Trajectory topic to be stored (default=/human_trajectories/trajectories/batch)"
     )
     parser.add_argument(
-        "collection_name", default="trajectory_images",
+        "collection_name", nargs='?', default="trajectory_images",
         help="Collection name in db message_store (default=trajectory_images)"
     )
     args = parser.parse_args()
