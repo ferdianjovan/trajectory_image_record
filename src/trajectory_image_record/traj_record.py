@@ -3,8 +3,8 @@
 import rospy
 import argparse
 from std_msgs.msg import Header
-from sensor_msgs.msg import Image
 from human_trajectory.msg import Trajectories
+from sensor_msgs.msg import Image, CompressedImage
 from trajectory_image_record.msg import ImageRecord
 from mongodb_store.message_store import MessageStoreProxy
 
@@ -18,6 +18,7 @@ class TrajectoryImageRecord(object):
         self._trajs = Trajectories()
         self._new = False
         self._img = Image()
+        self._comp_img = CompressedImage()
         self._last_taken = rospy.Time.now().secs
         rospy.loginfo("Starting Trajectory Image Recording...")
 
@@ -29,8 +30,9 @@ class TrajectoryImageRecord(object):
             traj_topic, Trajectories, self._traj_cb, None, 10
         )
         rospy.loginfo("Subscribe to %s..." % img_topic)
-        self._sub_image = rospy.Subscriber(
-            img_topic, Image, self._image_cb, None, 10
+        rospy.Subscriber(img_topic, Image, self._image_cb, None, 10)
+        rospy.Subscriber(
+            "%scompressed" % img_topic, CompressedImage, self._compressed_image_cb, None, 10
         )
         rospy.loginfo("Publish to %s..." % record_topic)
         self._pub = rospy.Publisher(
@@ -49,6 +51,9 @@ class TrajectoryImageRecord(object):
     def _image_cb(self, image):
         self._img = image
 
+    def _compressed_image_cb(self, image):
+        self._comp_img = image
+
     def record(self):
         while not rospy.is_shutdown():
             traj_ids = list()
@@ -61,12 +66,12 @@ class TrajectoryImageRecord(object):
                         traj_ids.append(traj.uuid)
                 record = ImageRecord(
                     Header(self._counter, rospy.Time.now(), '/map'),
-                    traj_ids, self._img
+                    traj_ids, self._comp_img
                 )
                 rospy.loginfo(
                     "Publish an image for trajectories with uuid: %s" % str(traj_ids)
                 )
-                self._pub.publish(record.image)
+                self._pub.publish(self._img)
                 self._new = False
                 self._store_client.insert(record)
                 self._counter += 1
@@ -75,9 +80,9 @@ class TrajectoryImageRecord(object):
                 if temp - self._last_taken > 10:
                     record = ImageRecord()
                     record.header = Header(self._counter, rospy.Time.now(), '/map')
-                    record.image = self._img
+                    record.image = self._comp_img
                     rospy.loginfo("Publish an image with no trajectory recorded")
-                    self._pub.publish(record.image)
+                    self._pub.publish(self._img)
                     self._store_client.insert(record)
                     self._last_taken = temp
                     self._counter += 1
