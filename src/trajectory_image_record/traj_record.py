@@ -77,7 +77,7 @@ class TrajectoryImageRecord(object):
                     record.header = Header(self._counter, rospy.Time.now(), '/map')
                     record.image = self._img
                     rospy.loginfo("Publish an image with no trajectory recorded")
-                    self._pub.publish()
+                    self._pub.publish(record.image)
                     self._store_client.insert(record)
                     self._last_taken = temp
                     self._counter += 1
