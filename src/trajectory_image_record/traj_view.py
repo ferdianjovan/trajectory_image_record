@@ -40,7 +40,7 @@ class TrajectoryImageView(object):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog="image_view")
     parser.add_argument(
-        "collection_name", nargs='?', default="trajectory_images",
+        "-c", dest="collection_name", default="trajectory_images",
         help="Collection name in db message_store (default=trajectory_images)"
     )
     args = parser.parse_args()
