@@ -17,12 +17,27 @@
   <build_depend>mongodb_store</build_depend>
   <build_depend>human_trajectory</build_depend>
   <build_depend>message_generation</build_depend>
+  <build_depend>message_filters</build_depend>
+  <build_depend>bayes_people_tracker</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>actionlib</build_depend>
+  <build_depend>actionlib_msgs</build_depend>
+  <build_depend>flir_pantilt_d46</build_depend>
+
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>mongodb_store</run_depend>
   <run_depend>message_runtime</run_depend>
   <run_depend>human_trajectory</run_depend>
+  <run_depend>message_filters</run_depend>
+  <run_depend>bayes_people_tracker</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>actionlib</run_depend>
+  <run_depend>actionlib_msgs</run_depend>
+  <run_depend>flir_pantilt_d46</run_depend>
 
   <export>
   </export>

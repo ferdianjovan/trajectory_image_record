@@ -13,17 +13,14 @@ from geometry_msgs.msg import PoseArray, PoseStamped
 from trajectory_image_record.video_recorder import VideoRecorder
 
 
-class ObservationRecordManager(object):
+class ObservationRecorder(object):
 
     def __init__(self, path, poses_topic, tracker_topic, img_topic):
-        self.stop = False
-        self.uuids = list()
-        self.recorded_info = list()
+        self.reset()
         self._img_topic = img_topic
+        if path[-1] != '/':
+            path += '/'
         self._file_path = path
-        self._ubd_pos = list()
-        self._tracker_pos = list()
-        self._tracker_uuids = list()
         self._tfl = tf.TransformListener()
         rospy.loginfo("Subscribe to %s..." % img_topic)
         subs = [
@@ -32,6 +29,14 @@ class ObservationRecordManager(object):
         ]
         ts = message_filters.ApproximateTimeSynchronizer(subs, queue_size=5, slop=0.15)
         ts.registerCallback(self.cb)
+
+    def reset(self):
+        self.stop = False
+        self.uuids = list()
+        self._ubd_pos = list()
+        self._tracker_pos = list()
+        self.recorded_info = list()
+        self._tracker_uuids = list()
 
     def cb(self, ubd_cent, pt):
         self._ubd_pos = self.to_world_all(ubd_cent)
@@ -86,8 +91,8 @@ class ObservationRecordManager(object):
     def stop_recording(self):
         self.stop = True
 
-    def save(self):
-        stream = file(self._file_path+str(rospy.Time.now().secs), 'a')
+    def save(self, file_name=rospy.Time.now().secs):
+        stream = file(self._file_path+str(file_name)+'.data', 'a')
         yaml.dump(self.recorded_info, stream)
 
 
@@ -102,8 +107,8 @@ if __name__ == '__main__':
         help="Trajectory topic to be stored (default=/people_tracker/positions)"
     )
     parser.add_argument(
-        "-i", dest="image_topic", default="/head_xtion/rgb/image_raw/",
-        help="Image topic to be stored (default=/head_xtion/rgb/image_raw/)"
+        "-i", dest="image_topic", default="/head_xtion/rgb/image_raw",
+        help="Image topic to be stored (default=/head_xtion/rgb/image_raw)"
     )
     parser.add_argument(
         'file_path',
@@ -112,7 +117,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     rospy.init_node("observation_recorder")
-    orm = ObservationRecordManager(
+    orm = ObservationRecorder(
         args.file_path, args.poses_topic, args.tracker_topic, args.img_topic
     )
     orm.record(60)
