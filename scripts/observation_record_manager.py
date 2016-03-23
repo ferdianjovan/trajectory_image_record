@@ -32,39 +32,41 @@ class ObservationRecordManager(object):
         )
         rospy.loginfo("Connecting to SetPtuState action server...")
         self._ac = actionlib.SimpleActionClient(
-            "SetPtuState", PtuGotoAction
+            "SetPTUState", PtuGotoAction
         )
         self._ac.wait_for_server()
         self._as.start()
 
-    def tilting(self, reverse=False):
+    def tilt(self, reset=False):
+        rospy.loginfo("Moving the PTU...")
         pan = self._pan
         tilt = self._tilt
-        if reverse:
-            pan *= -1
-            tilt *= -1
+        if reset:
+            pan = 0
+            tilt = 0
         self._ac.send_goal(
             PtuGotoGoal(pan, tilt, self._pan_vel, self._tilt_vel)
         )
         self._ac.wait_for_result()
-        self._ac.get_result()
         # self._ac.cancel_all_goals()
 
     def execute(self, goal):
-        self.tilting()  # cek apakah ini bisa di cancel gak, klo ternyata bisa dan balik, kodingan perlu dirubah
+        rospy.loginfo("Got a new goal to record for %d seconds" % goal.duration)
+        self.tilt()
         thread = threading.Thread(target=self._recorder.record, args=(goal.duration,))
         thread.start()
-        while not self._as.is_preempt_requested():
+        while not self._as.is_preempt_requested() and thread.isAlive():
             rospy.sleep(0.1)
         if self._as.is_preempt_requested():
+            rospy.logwarn("The action is being preempted, stopping the recording")
             self._recorder.stop_recording()
             self._as.set_preempted()
         else:
             self._as.set_succeeded(RecordImageResult())
         thread.join()
-        self._recorder.save()
+        self._recorder.save(str(rospy.Time.now().secs))
         self._recorder.reset()
-        self.tilting(True)
+        self.tilt(True)
 
 
 if __name__ == '__main__':

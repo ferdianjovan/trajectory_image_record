@@ -1,5 +1,5 @@
 <launch>
-    <arg name="path" default=""/>      
+    <arg name="path"/>      
     <arg name="ubd_topic" default="/upper_body_detector/bounding_box_centres"/>      
     <arg name="tracker_topic" default="/people_tracker/positions"/>      
     <arg name="image_topic" default="/head_xtion/rgb/image_raw"/>      

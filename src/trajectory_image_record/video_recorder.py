@@ -24,7 +24,7 @@ class VideoRecorder(threading.Thread):
         self.proc.kill()
         rospy.loginfo("Recording is done")
         if self.timeout is not None:
-            self.timeout_timer.shutdown()
+            self.timeout.shutdown()
 
     def run(self):
         rospy.loginfo("Recording is being started...")

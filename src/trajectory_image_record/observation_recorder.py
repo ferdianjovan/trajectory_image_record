@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import tf
-import yaml
+import json
 import rospy
 import argparse
 import threading
@@ -86,14 +86,15 @@ class ObservationRecorder(object):
             vr.force_kill()
         else:
             vr.join()
-        self.recorded_info.append((start_time, end_time, len(self.uuids)))
+        self.recorded_info.append((start_time.secs, end_time.secs, len(self.uuids)))
 
     def stop_recording(self):
         self.stop = True
 
-    def save(self, file_name=rospy.Time.now().secs):
+    def save(self, file_name):
+        rospy.loginfo("Saving recorded information to %s" % file_name)
         stream = file(self._file_path+str(file_name)+'.data', 'a')
-        yaml.dump(self.recorded_info, stream)
+        json.dump(self.recorded_info, stream)
 
 
 if __name__ == '__main__':
@@ -118,7 +119,7 @@ if __name__ == '__main__':
 
     rospy.init_node("observation_recorder")
     orm = ObservationRecorder(
-        args.file_path, args.poses_topic, args.tracker_topic, args.img_topic
+        args.file_path, args.poses_topic, args.tracker_topic, args.image_topic
     )
     orm.record(60)
     rospy.sleep(10)
@@ -127,4 +128,4 @@ if __name__ == '__main__':
     rospy.sleep(10)
     orm.stop_recording()
     thread.join()
-    orm.save()
+    orm.save(str(rospy.Time.now().secs))
