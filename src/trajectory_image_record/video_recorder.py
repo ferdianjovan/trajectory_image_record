@@ -31,7 +31,7 @@ class VideoRecorder(threading.Thread):
         self.proc = subprocess.Popen(
             [
                 'rosrun', 'image_view', 'video_recorder', 'image:='+self.img_topic,
-                '_filename:=%s.avi' % (self.fname), '_fps:=30'
+                '_filename:=%s.avi' % (self.fname), '_fps:=30', '_max_depth_range:=0.0'
             ],
             shell=False, stdout=self.FNULL, stderr=subprocess.STDOUT
         )
