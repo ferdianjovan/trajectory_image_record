@@ -1,0 +1,17 @@
+<launch>
+    <arg name="path"/>      
+    <arg name="ubd_topic" default="/upper_body_detector/bounding_box_centres"/>      
+    <arg name="tracker_topic" default="/people_tracker/positions"/>      
+    <arg name="image_topic" default="/head_xtion/rgb/image_raw"/>      
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
+
+    <node pkg="trajectory_image_record" type="observation_record_manager.py" name="record_manager_server" output="screen" respawn="false">
+        <param name="path" value="$(arg path)" type="string"/>
+        <param name="ubd_topic" value="$(arg ubd_topic)" type="string"/>
+        <param name="tracker_topic" value="$(arg tracker_topic)" type="string"/>
+        <param name="image_topic" value="$(arg image_topic)" type="string"/>
+    </node>
+</launch>

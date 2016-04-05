@@ -8,10 +8,17 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   mongodb_store
+  message_filters
+  bayes_people_tracker
+  geometry_msgs
+  tf
+  actionlib
+  actionlib_msgs
+  flir_pantilt_d46
 )
 
 # find_package(Boost REQUIRED COMPONENTS system)
-# catkin_python_setup()
+catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -22,16 +29,21 @@ add_message_files(
   ImageRecord.msg
 )
 
+add_action_files(
+    DIRECTORY action
+    FILES RecordImage.action
+)
+
 generate_messages(
   DEPENDENCIES
-  sensor_msgs std_msgs
+  sensor_msgs std_msgs actionlib actionlib_msgs
 )
 
 ###################################
 ## catkin specific configuration ##
 ###################################
 catkin_package(
-  CATKIN_DEPENDS human_trajectory rospy sensor_msgs std_msgs message_runtime mongodb_store
+  CATKIN_DEPENDS human_trajectory rospy sensor_msgs std_msgs message_runtime mongodb_store message_filters bayes_people_tracker geometry_msgs tf actionlib actionlib_msgs flir_pantilt_d46
 )
 
 ###########
